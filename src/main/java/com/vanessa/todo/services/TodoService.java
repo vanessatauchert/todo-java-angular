@@ -2,6 +2,7 @@ package com.vanessa.todo.services;
 
 import com.vanessa.todo.entities.Todo;
 import com.vanessa.todo.repositories.TodoRepository;
+import com.vanessa.todo.services.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class TodoService {
 
     public Todo findById(Long id) {
         Optional<Todo> obj = repository.findById(id);
-        return obj.orElse(null);
+        return obj.orElseThrow(()-> new ObjectNotFoundException("Objeto não encontrado! Id: " + id + ", Tipo: "+ Todo.class.getName()));
     }
 
     public List<Todo> findAllOpen() {
@@ -31,5 +32,21 @@ public class TodoService {
     public List<Todo> findAll() {
         List<Todo> list = repository.findAll();
         return list;
+    }
+    public Todo create(Todo obj) {
+        obj.setId(null);
+        return repository.save(obj);
+    }
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
+    public Todo update(Long id, Todo obj) {
+        Todo newObj = findById(id);
+        newObj.setTitulo(obj.getTitulo());
+        newObj.setDataParaFinalizar(obj.getDataParaFinalizar());
+        newObj.setDesccricao(obj.getDesccricao());
+        newObj.setFinalizado(obj.getFinalizado());
+        return repository.save(newObj);
     }
 }
